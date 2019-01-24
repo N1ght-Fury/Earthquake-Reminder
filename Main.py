@@ -6,9 +6,11 @@ from datetime import datetime
 import User_Database
 import Inform_User
 import Message
+import Eq_Database
 
 Mail = User_Database.Database_User()
 User = User_Database.Database_User()
+Earthquake = Eq_Database.Database_Eq()
 
 print("""
 Enter '1' to organize user database.
@@ -219,6 +221,7 @@ while True:
                 soup = BeautifulSoup(html_content, "html.parser")
             except Exception as e:
                 print('An error occurred. Time: ' + str(datetime.strftime(datetime.now(), "%X")))
+                time.sleep(60)
                 continue
 
             full_text_html = soup.find_all("pre")
@@ -235,50 +238,105 @@ while True:
             for info in list_info:
                 i = info.split(" ")
                 clear_list = [x for x in i if x != ""]
+                clear_list =  clear_list[:-1]
                 main_list.append(clear_list)
 
             # Run this code to see what our list looks like
-            # for i in main_list:
-                # print(i)
+            #for i in main_list:
+                #print(i)
 
-            # Running program for 10 times. To check only 10 rows, not every row.
-            for item,run_time in zip(main_list,range(0,11)):
+            # Running program for 10 times. To check only 5 rows, not every row.
+            for item,run_time in zip(main_list,range(0,4)):
 
                 try:
 
-                    # Getting values from list and creating variables
+                    # Getting values from list
                     date = str(item[0])
                     action_time = str(item[1])
                     latit = item[2]
                     long = item[3]
                     depth = item[4]
                     strength = item[6]
-                    region = item[8]
-                    city = str(item[9]).replace("(","").replace(")","")
+                    city = str(item[8])
+
+                    try:
+                        if (str(item[9]).startswith("(") and str(item[9]).endswith(")")):
+                            city = str(item[9]).replace("(","").replace(")","")
+                    except:
+                        pass
+                    try:
+                        if (str(item[10]).startswith("(") and str(item[10]).endswith(")")):
+                            city = str(item[10]).replace("(","").replace(")","")
+                    except:
+                        pass
+                    try:
+                        if (str(item[11]).startswith("(") and str(item[11]).endswith(")")):
+                            city = str(item[11]).replace("(","").replace(")","")
+                    except:
+                        pass
+                    try:
+                        if (str(item[12]).startswith("(") and str(item[12]).endswith(")")):
+                            city = str(item[12]).replace("(","").replace(")","")
+                    except:
+                        pass
+                    try:
+                        if (str(item[13]).startswith("(") and str(item[13]).endswith(")")):
+                            city = str(item[13]).replace("(","").replace(")","")
+                    except:
+                        pass
+
+                    earthquake = Eq_Database.Eq(date,action_time,latit,long,depth,strength,city)
+
+                    try:
+                        if (not Earthquake.check_if_eq_exists(date, action_time) and float(strength) >= 4.0):
+
+                            Earthquake.add_eq(earthquake)
+                            print(earthquake)
+                            new_earthquake += 1
+
+                            user_list = User.get_mails(city)
+
+                            text_of_mail = Message.Mail_Message(date, action_time, latit, long, depth, strength, city)
+                            for user in user_list:
+                                Inform_User.send_mail(user[0], text_of_mail)
+
+                            user_list = User.get_mails("ALL")
+                            for user in user_list:
+                                Inform_User.send_mail(user[0], text_of_mail)
+
+
+
+                    except:
+                        print("Something unexpected happened.")
+
 
                     # Getting the time value
-                    now = datetime.now()
+                    #now = datetime.now()
                     # Parsing time of earthquake to datetime so we can find the difference between these two values in seconds
-                    previous = datetime.strptime(action_time, '%H:%M:%S')
-                    in_secs = (now - previous).seconds
+                    #previous = datetime.strptime(action_time, '%H:%M:%S')
+                    #in_secs = (now - previous).seconds
 
                     # If date is same as today's date
                     # If max 90 seconds has passed since earthquake
                     # And if strength of earthquake is more then 4.0
                     # Which means an earthquake just happened, and might me serious. Since the power of earthquake is more than 4.0
                     # So we will inform user
-                    if (date == str(time.strftime("%Y.%m.%d")) and in_secs <= 90 and float(strength) >= 4.0):
 
-                        # To see how many earthquakes happened at the end of process
-                        new_earthquake += 1
+                    #Change the time check. The site doesnt upload the info immdietaly after eartquake happens
+                    #So you probably need to save the info into database and check if earhquake exists
+
+                    #if (date == str(time.strftime("%Y.%m.%d")) and in_secs <= 90 and float(strength) >= 4.0):
+
+                        # To see how many earthquakes happened
+                        #new_earthquake += 1
 
                         # Creating a list of users who lives in the city where earthquake happened so we can inform them
-                        user_list = User.get_mails(city)
-                        text_of_mail = Message.Mail_Message(date,action_time,latit,long,depth,strength,region,city)
+                        # user_list = User.get_mails(city)
+                        #text_of_mail = Message.Mail_Message(date,action_time,latit,long,depth,strength,region,city)
 
                         # Sending mail
-                        for user in user_list:
-                            Inform_User.send_mail(user[0],text_of_mail)
+                        #for user in user_list:
+                            #Inform_User.send_mail(user[0],text_of_mail)
 
                 except:
                     print("List item out of range.")
@@ -294,8 +352,8 @@ while True:
             else:
                 text = str(new_earthquake) + " new earthquake/s happened. Time: "
 
-            print(str(run) + ". run - " + "Process finished. Waiting for 1 minute. "
-                  + text + str(datetime.strftime(datetime.now(), "%X")) + " - Today's number of serious earthquakes: " + str(new_earthquake))
+            print(str(run) + ". run - " + "Process finished. "
+                  + text + str(datetime.strftime(datetime.now(), "%X")))
 
             run = int(run)
 
