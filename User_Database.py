@@ -104,8 +104,8 @@ class Database_User():
 
     def get_mails(self,city):
 
-        query = "select * from tbl_mail where stat = 1 and city = @p1"
-        self.cursor.execute(query,(city,))
+        query = "select * from tbl_mail where stat = 1 and city like '%" + city + "%'"
+        self.cursor.execute(query)
         user_list = self.cursor.fetchall()
         return user_list
 
