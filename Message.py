@@ -1,4 +1,4 @@
-def Mail_Message(date,action_time,latit,long,depth,strength,region,city):
+def Mail_Message(date,action_time,latit,long,depth,strength,city):
     return """
     <!DOCTYPE html>
     <html>
@@ -16,7 +16,6 @@ def Mail_Message(date,action_time,latit,long,depth,strength,region,city):
             <p><b>Saat:</b>  """ + action_time + """</p>
             <p><b>Derinlik:</b>  """ + depth + """ km</p>
             <p><b>Büyüklük:</b>  """ + strength + """</p>
-            <p><b>Bölge:</b>  """ + region + """</p>
             <p><b>Şehir:</b>  """ + city + """</p>
             <p><b>Haritalarda:  </b> <a href='https://www.google.com/maps/place/""" + latit + '+' + long + """'>Google Maps</a></p>
         </div>
