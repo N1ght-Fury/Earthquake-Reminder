@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 from datetime import datetime
+import sys
 
 import User_Database
 import Inform_User
@@ -12,17 +13,17 @@ Mail = User_Database.Database_User()
 User = User_Database.Database_User()
 Earthquake = Eq_Database.Database_Eq()
 
-print("""
-Enter '1' to organize user database.
-Enter '2' to start the program.
-Enter 'q' to exit program.
-""")
+#print("""
+#Enter '1' to organize user database.
+#Enter '2' to start the program.
+#Enter 'q' to exit program.
+#""")
 
 while True:
 
-    number = input("Command: ")
+    #number = input("Command: ")
 
-    if (number == "1"):
+    if (sys.argv[1] == "1"):
 
         print("""
         Enter '1' to see all users.
@@ -178,7 +179,7 @@ while True:
                 print("Invalid command. Try again.")
 
 
-    elif (number == "2"):
+    elif (sys.argv[1] == "2"):
 
         # To see how many times program works
         run = 0
@@ -360,9 +361,6 @@ while True:
             time.sleep(60)
 
 
-    elif (number.lower() == "q"):
-        exit()
-
     else:
         print("Invalid command. Try again.")
-
+        exit()
